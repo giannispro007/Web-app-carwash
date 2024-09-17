@@ -1,0 +1,249 @@
+CREATE TABLE users (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    username VARCHAR(30) NOT NULL,
+    pwd VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIME,
+    PRIMARY KEY(id)
+    );
+
+
+
+
+CREATE TABLE comments(
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    username VARCHAR(30) NOT NULL,
+    comment_text TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIME,
+    users_id INT(11),
+    PRIMARY KEY (id),
+    FOREIGN KEY (users_id) REFERENCES users (id) ON DELETE SET NULL 
+    );
+
+
+INSERT INTO users(username,pwd,email) VALUES ('PRO' , 'john123' , 'john7@gmail.com');
+
+
+UPDATE users SET username='JohnLoco' , pwd ='JohnLoco123' WHERE id = 1;    >> αλλαζω τα δεδομενα του table
+
+
+DELETE FROM users WHERE id =1;
+
+
+INSERT INTO comments (username, comment_text, users_id) VALUES ('PRO', 'This is a comment on a website' , 3);
+
+
+SELECT username , email FROM users WHERE id =3;
+
+
+SELECT username , comment_text FROM comments WHERE users_id =3;
+
+SELECT * FROM comments WHERE users_id ;
+
+
+SELECT * FROM users INNER JOIN comments ON users.id=   comments.users_id ;
+
+
+SELECT users.username, comments.comment_text, comments.created_at FROM users INNER JOIN comments ON users.id = comments.users_id ;
+
+SELECT * FROM users LEFT JOIN comments ON users.id=   comments.users_id ;
+
+SELECT * FROM users RIGHT JOIN comments ON users.id=   comments.users_id ;
+
+
+#################################################################################3
+
+    <h3>Signup</h3>
+
+    <form action="includes/formhandler.inc.php" method="post">
+    <input type="text" name="username" placeholder="Username" >
+    <input type="password" name="pwd" placeholder="Password" >
+    <input type="text" name="email" placeholder="E-mail" >
+    <button>Signup</button>
+    </form>
+
+<h3>Change account </h3>
+
+    <form action="includes/userupdate.inc.php" method="post">
+    <input type="text" name="username" placeholder="Username" >
+    <input type="password" name="pwd" placeholder="Password" >
+    <input type="text" name="email" placeholder="E-mail" >
+    <button>Update</button>
+    </form>
+
+    <h3>Delete account </h3>
+
+    <form action="includes/userdelete.inc.php" method="post">
+    <input type="text" name="username" placeholder="Username" >
+    <input type="password" name="pwd" placeholder="Password" >
+
+    <button>Delete</button>
+    </form>
+
+
+############################################################################################
+
+userdelete.inc.php
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $pwd = $_POST["pwd"];
+    $email = $_POST["email"];
+    
+    try {
+        require_once "../includes/dbh.inc.php";
+        
+
+
+        $query = "DELETE FROM users WHERE username=:username AND pwd=:pwd;";
+        $stmt = $pdo->prepare($query);
+
+        $stmt->bindParam(":username", $username ) ;
+        $stmt->bindParam(":pwd", $pwd ) ;
+        
+
+        $stmt->execute();
+
+
+        $pdo = null;
+        $stmt = null;
+
+
+        header("Location: ../index.php");
+        die();
+    } catch (PDOException $e) {
+
+        die("Query failed: " . $e->getMessage());
+    }
+} else {
+
+    header("Location: ../index.php");
+    die();
+}
+?>
+
+
+
+####################################################################################
+userupdate.inc.php
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $pwd = $_POST["pwd"];
+    $email = $_POST["email"];
+    
+    try {
+        require_once "../includes/dbh.inc.php";
+        
+
+
+        $query = "UPDATE users SET username=:username, pwd=:pwd, email=:email WHERE id =2;";
+        $stmt = $pdo->prepare($query);
+
+        $stmt->bindParam(":username", $username ) ;
+        $stmt->bindParam(":pwd", $pwd ) ;
+        $stmt->bindParam(":email", $email ) ;
+
+        $stmt->execute();
+
+
+        $pdo = null;
+        $stmt = null;
+
+
+        header("Location: ../index.php");
+        die();
+    } catch (PDOException $e) {
+
+        die("Query failed: " . $e->getMessage());
+    }
+} else {
+
+    header("Location: ../index.php");
+    die();
+}
+?>
+
+###########################################################################
+
+dbh.inc.php
+
+<?php
+
+$dsn = "mysql:host=localhost;dbname=myfirstdatabase";
+$dbusername = "root";
+$dbpassword = "";
+
+try {
+    $pdo = new PDO($dsn, $dbusername, $dbpassword);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+} catch (PDOException $e) {
+    echo "Connection failed". $e->getMessage();
+    
+}
+
+?>
+###############################################################################
+
+formhandler.inc.php
+
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $pwd = $_POST["pwd"];
+    $email = $_POST["email"];
+    
+    try {
+        require_once "../includes/dbh.inc.php";
+        
+
+
+        $query = "INSERT INTO users (username, pwd, email) VALUES (:username,:pwd, :email)";
+        $stmt = $pdo->prepare($query);
+
+        $stmt->bindParam(":username", $username ) ;
+        $stmt->bindParam(":pwd", $pwd ) ;
+        $stmt->bindParam(":email", $email ) ;
+
+        $stmt->execute();
+
+
+        $pdo = null;
+        $stmt = null;
+
+
+        header("Location: ../index.php");
+        die();
+    } catch (PDOException $e) {
+
+        die("Query failed: " . $e->getMessage());
+    }
+} else {
+
+    header("Location: ../index.php");
+    die();
+}
+?>
+##################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
